@@ -41,35 +41,70 @@ const fs = require("fs");
 const stringSimilarity = require('string-similarity');
 
 
-const pdfPoppler = require("pdf-poppler"); // ✅ import entire module
+const { exec } = require("child_process");
 
 const convertPdfToImages = async (pdfPath) => {
   if (!pdfPath) throw new Error("PDF path is null or undefined");
+  if (!fs.existsSync(pdfPath)) throw new Error("PDF file does not exist");
 
   const outputDir = path.dirname(pdfPath);
   const prefix = path.basename(pdfPath, path.extname(pdfPath));
-  const options = {
-    format: "jpeg",
-    out_dir: outputDir,
-    out_prefix: prefix,
-    page: null,
-  };
+  const outputImagePath = path.join(outputDir, `${prefix}_page1.jpg`);
 
-  try {
-    await pdfPoppler.convert(pdfPath, options);
+  // Ghostscript command:
+  // -dFirstPage=1 -dLastPage=1 to convert only the first page
+  // -sDEVICE=jpeg to output JPEG
+  // -r150 sets resolution (can adjust if you want)
+  // -dNOPAUSE -dBATCH for non-interactive run
+  // -sOutputFile specifies output filename
+  const gsCommand = `gs -dNOPAUSE -dBATCH -sDEVICE=jpeg -r150 -dFirstPage=1 -dLastPage=1 -sOutputFile="${outputImagePath}" "${pdfPath}"`;
 
-    // Read and return the generated image paths
-    const files = fs.readdirSync(outputDir);
-    const imagePaths = files
-      .filter(file => file.startsWith(prefix) && file.endsWith(".jpg"))
-      .map(file => path.join(outputDir, file));
-
-    return imagePaths;
-  } catch (error) {
-    console.error("❌ PDF to image conversion failed:", error);
-    throw error;
-  }
+  return new Promise((resolve, reject) => {
+    exec(gsCommand, (error, stdout, stderr) => {
+      if (error) {
+        console.error("❌ Ghostscript PDF to image conversion failed:", error);
+        reject(error);
+        return;
+      }
+      resolve([outputImagePath]);
+    });
+  });
 };
+
+
+
+
+
+
+// const pdfPoppler = require("pdf-poppler"); // ✅ import entire module
+
+// const convertPdfToImages = async (pdfPath) => {
+//   if (!pdfPath) throw new Error("PDF path is null or undefined");
+
+//   const outputDir = path.dirname(pdfPath);
+//   const prefix = path.basename(pdfPath, path.extname(pdfPath));
+//   const options = {
+//     format: "jpeg",
+//     out_dir: outputDir,
+//     out_prefix: prefix,
+//     page: null,
+//   };
+
+//   try {
+//     await pdfPoppler.convert(pdfPath, options);
+
+//     // Read and return the generated image paths
+//     const files = fs.readdirSync(outputDir);
+//     const imagePaths = files
+//       .filter(file => file.startsWith(prefix) && file.endsWith(".jpg"))
+//       .map(file => path.join(outputDir, file));
+
+//     return imagePaths;
+//   } catch (error) {
+//     console.error("❌ PDF to image conversion failed:", error);
+//     throw error;
+//   }
+// };
 
 
 

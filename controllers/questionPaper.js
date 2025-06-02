@@ -83,6 +83,7 @@ const deleteLocalFile = (filePath) => {
 };
 
 
+
 const folderId = "1-oyGcR9cg3-F2_uE7ymRBNg-GKhZnGN0";
 const domain = "mail.jiit.ac.in";
 
@@ -319,14 +320,13 @@ if (!subject) {
 }
 
 if(!validationResult.isValid){
-  await deleteLocalFile(filePath);
+   await deleteLocalFile(filePath);
   return res.status(400).json(
                         { extractedInfo, 
                           validationResult,
                           message: "OCR failed to validate subject name or code in the file." 
                         });
 }
-
 
       // Step 4: Upload to Google Drive
       const fileMetadata = {
@@ -346,8 +346,6 @@ if(!validationResult.isValid){
         fields: "id, name, parents",
         supportsAllDrives: true,
       });
-
-      console.log("after the file creation");
 
       await drive.permissions.create({
         fileId: file.data.id,
