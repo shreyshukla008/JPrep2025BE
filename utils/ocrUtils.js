@@ -34,43 +34,40 @@
 
 
 const Tesseract = require("tesseract.js");
-const Poppler = require("pdf-poppler");
+//const Poppler = require("pdf-poppler");
 const path = require("path");
 const fs = require("fs");
 
 const stringSimilarity = require('string-similarity');
 
-const { exec } = require('child_process');
+// utils/ocrUtils.js
+const { fromPath } = require("pdf2pic");
 
 const convertPdfToImages = async (pdfPath) => {
   const outputDir = path.dirname(pdfPath);
-  const outPrefix = path.basename(pdfPath, path.extname(pdfPath));
-  const outputPattern = path.join(outputDir, `${outPrefix}-*.jpg`);
+  const filePrefix = path.basename(pdfPath, path.extname(pdfPath));
+  const outputPathTemplate = path.join(outputDir, `${filePrefix}`);
 
-  return new Promise((resolve, reject) => {
-    // Construct the pdftoppm command to convert PDF to JPEG images
-    // -jpeg: output format
-    // -r 150: resolution (DPI), adjust as needed
-    const cmd = `pdftoppm -jpeg -r 150 "${pdfPath}" "${path.join(outputDir, outPrefix)}"`;
-
-    exec(cmd, (error, stdout, stderr) => {
-      if (error) {
-        reject(`Error executing pdftoppm: ${stderr || error.message}`);
-        return;
-      }
-
-      // After command finishes, read the directory and filter generated jpg files
-      try {
-        const files = fs.readdirSync(outputDir)
-          .filter(f => f.startsWith(outPrefix + "-") && f.endsWith(".jpg"))
-          .map(f => path.join(outputDir, f));
-        resolve(files);
-      } catch (fsErr) {
-        reject(`Error reading output directory: ${fsErr.message}`);
-      }
-    });
+  const converter = fromPath(pdfPath, {
+    density: 100,
+    saveFilename: filePrefix,
+    savePath: outputDir,
+    format: "jpg",
+    width: 1200,
+    height: 1600,
   });
+
+  const totalPages = 3; // Optional: adjust dynamically if needed
+  const imagePaths = [];
+
+  for (let i = 1; i <= totalPages; i++) {
+    const result = await converter(i);
+    imagePaths.push(result.path);
+  }
+
+  return imagePaths;
 };
+
 
 
 
