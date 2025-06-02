@@ -1,0 +1,36 @@
+# Node modules
+node_modules/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Sensitive credentials
+jprep2025.json
+*.key.json
+*.pem
+.env
+
+# OS/system files
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+dist/
+build/
+
+# Optional: ignore uploads or temp folders
+uploads/
+temp/
+tmp/
+
+# VSCode/IDE
+.vscode/
+.idea/

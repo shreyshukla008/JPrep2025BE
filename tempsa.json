@@ -1,0 +1,13 @@
+{
+    "type": "service_account",
+    "project_id": "jprep-2025",
+    "private_key_id": "36837ce3d567335383bb777a7c5687984be00659",
+    "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDFh6AKhhG90dfd\n8fd4zmjIKD919KAr/uY/47Z0GZtio3RiuWqXByi5C0YltIe9i4lcFdkpXFTDxQHf\nVSqhjsL7gBBcVNO4Orkni1DkIIzcQkq4917Z+wKngMbhii3PSJrpzvGv0Dm2poUr\nKR6/CtX/Az/PorYQpLD9QD1T1O2zJZ0G8NN/jHbufB76mXdnrTkDVGBE9Nu5lEtd\n7jVKOTqDvct/jWkDkw7b0/5yY8LcXe6fZOG4OuvzDWWDf9UoaKrW418iyDRmNR+y\nrTsfuojXejDuheb60Vsw/TAW9b7jl4JeHgUv7wAghYTUKN6VVT/GufjjF7kZlbyK\nc83FPhb/AgMBAAECggEAFQE0EoppLo827kIBt9XzLH2jKe7mbWdAosCbMUNb06Rg\nBvOCkybOvManIfFNkelZpPIp0o0f8mVrqo0K6H0e3NGka70Veny8Halh47BWakGe\nYobjjjhz8s3t2CPydR1aY8x+xNxWlsakWI+Z1mTXlrOIwJKj26c3ruZ63wRAdpE0\nc1YsxHVV8MW8cEgJqkf9nChIHkCbKAlVgWwt412SeEwJGdy2e4zq44jywPemG8lL\ncf+j/ffCeSkB3TCk1JtGv+sjJ3XJA5IlfDdyvs1K1NQJL20Ax7ZC54e/Y4UirE9U\n724tLVv+mtXcVrbgYxPBBqKFnVJ2z9cz/EuJ1oouUQKBgQDvXqecHsz+R6KtzT1j\nRl0GwL4C080S30PK+6k29LoDh/6g/GC3DrtJYSUEIkuAGN+RQmMmHiegQ2S8p3DD\niik30jPymbZmLqyS5FWdQH4inIe8WfHuUsz7ANQ+LRtxo3i/HEPkIp/W4jZIQm9D\n1HgB3SJURSjKxhfaIQV3BxwXdwKBgQDTQNHdBoZx/7iYE/V7c5LWA+xGpbIAAPo6\n2up4H8+98wWuUXGFrqEYTEtYIoeZXd9MKTVhniAQGzxBoSfKRXUkN2tQ9oCwOpOR\ndTpN5IY2LXh1/v1kAPxO7kWQVn4zxwH0RO8CLPe8OQoYu3vZynJXgHnXrt1nY/wb\n9LUe3gRuuQKBgQDHbTwFdR/i5jnhxXHUqQXOH3zvDBj6FSr9DUiAscncMUxyQXIu\ncUaWLypQ1GXEtnRlKENEubDX8+4UwwfO0effSvDeuTPe1BoRU80Ec3vjSDhKM0G+\nBhwjLyClIJ2RwtlRl7H0euhidhs1fqwGfhjxrJPyU6BVuE6c/A/6h+DepwKBgGn+\n5Q3kf0Llz0YnBY36sFtHvp639rb/xo4PV4QMWhzxuhD79lzgAR6C8W74bFcsfaTm\nLE2dnHLYZ4R6is93yE3yrJsEBA/oZDCgxC9fEWRPrlhuJ8+smuwzq52/eDUcjkN0\n7wOFcovzhrhgIcVmSbbT1M6+g4Kj7VRNlS82sLypAoGAY+WFKXVUSgOhdoQ3olPw\n4LDoI9k1gVVA71xmr+P5I01Uvb4syYf/jKauqH48tRDIui4a+aFZYdefbxgNnJDt\n2x9TzeUkNn3//GCQ0bu5YVcW6ugrCUdApB4eEx04piLFpaRyyFdzeDk9cWiQYhVt\nRAeTYez6b/Me30kyvjJGMu8=\n-----END PRIVATE KEY-----\n",
+    "client_email": "jprep-admin-shrey@jprep-2025.iam.gserviceaccount.com",
+    "client_id": "106298673234503294043",
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+    "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/jprep-admin-shrey%40jprep-2025.iam.gserviceaccount.com",
+    "universe_domain": "googleapis.com"
+  }
