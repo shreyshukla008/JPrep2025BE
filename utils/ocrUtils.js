@@ -37,22 +37,57 @@ const Tesseract = require("tesseract.js");
 const Poppler = require("pdf-poppler");
 const path = require("path");
 const fs = require("fs");
+
 const stringSimilarity = require('string-similarity');
+
+const { exec } = require('child_process');
 
 const convertPdfToImages = async (pdfPath) => {
   const outputDir = path.dirname(pdfPath);
-  const options = {
-    format: "jpeg",
-    out_dir: outputDir,
-    out_prefix: path.basename(pdfPath, path.extname(pdfPath)),
-    page: null,
-  };
+  const outPrefix = path.basename(pdfPath, path.extname(pdfPath));
+  const outputPattern = path.join(outputDir, `${outPrefix}-*.jpg`);
 
-  await Poppler.convert(pdfPath, options);
-  return fs.readdirSync(outputDir)
-    .filter(f => f.includes(options.out_prefix) && f.endsWith(".jpg"))
-    .map(f => path.join(outputDir, f));
+  return new Promise((resolve, reject) => {
+    // Construct the pdftoppm command to convert PDF to JPEG images
+    // -jpeg: output format
+    // -r 150: resolution (DPI), adjust as needed
+    const cmd = `pdftoppm -jpeg -r 150 "${pdfPath}" "${path.join(outputDir, outPrefix)}"`;
+
+    exec(cmd, (error, stdout, stderr) => {
+      if (error) {
+        reject(`Error executing pdftoppm: ${stderr || error.message}`);
+        return;
+      }
+
+      // After command finishes, read the directory and filter generated jpg files
+      try {
+        const files = fs.readdirSync(outputDir)
+          .filter(f => f.startsWith(outPrefix + "-") && f.endsWith(".jpg"))
+          .map(f => path.join(outputDir, f));
+        resolve(files);
+      } catch (fsErr) {
+        reject(`Error reading output directory: ${fsErr.message}`);
+      }
+    });
+  });
 };
+
+
+
+// const convertPdfToImages = async (pdfPath) => {
+//   const outputDir = path.dirname(pdfPath);
+//   const options = {
+//     format: "jpeg",
+//     out_dir: outputDir,
+//     out_prefix: path.basename(pdfPath, path.extname(pdfPath)),
+//     page: null,
+//   };
+
+//   await Poppler.convert(pdfPath, options);
+//   return fs.readdirSync(outputDir)
+//     .filter(f => f.includes(options.out_prefix) && f.endsWith(".jpg"))
+//     .map(f => path.join(outputDir, f));
+// };
 
 
 
