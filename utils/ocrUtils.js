@@ -40,33 +40,37 @@ const fs = require("fs");
 
 const stringSimilarity = require('string-similarity');
 
-// utils/ocrUtils.js
-const { fromPath } = require("pdf2pic");
+
+const pdfPoppler = require("pdf-poppler"); // ✅ import entire module
 
 const convertPdfToImages = async (pdfPath) => {
+  if (!pdfPath) throw new Error("PDF path is null or undefined");
+
   const outputDir = path.dirname(pdfPath);
-  const filePrefix = path.basename(pdfPath, path.extname(pdfPath));
-  const outputPathTemplate = path.join(outputDir, `${filePrefix}`);
+  const prefix = path.basename(pdfPath, path.extname(pdfPath));
+  const options = {
+    format: "jpeg",
+    out_dir: outputDir,
+    out_prefix: prefix,
+    page: null,
+  };
 
-  const converter = fromPath(pdfPath, {
-    density: 100,
-    saveFilename: filePrefix,
-    savePath: outputDir,
-    format: "jpg",
-    width: 1200,
-    height: 1600,
-  });
+  try {
+    await pdfPoppler.convert(pdfPath, options);
 
-  const totalPages = 3; // Optional: adjust dynamically if needed
-  const imagePaths = [];
+    // Read and return the generated image paths
+    const files = fs.readdirSync(outputDir);
+    const imagePaths = files
+      .filter(file => file.startsWith(prefix) && file.endsWith(".jpg"))
+      .map(file => path.join(outputDir, file));
 
-  for (let i = 1; i <= totalPages; i++) {
-    const result = await converter(i);
-    imagePaths.push(result.path);
+    return imagePaths;
+  } catch (error) {
+    console.error("❌ PDF to image conversion failed:", error);
+    throw error;
   }
-
-  return imagePaths;
 };
+
 
 
 
