@@ -17,7 +17,11 @@ const starredRoutes = require("./routes/starred");
 dotenv.config(); // Load environment variables
 
 const app = express();
-const PORT = process.env.PORT || 4000;
+// const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT;
+if (!PORT) {
+  throw new Error("❌ PORT environment variable is not set.");
+}
 
 app.use(cors());
 
