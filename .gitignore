@@ -27,7 +27,7 @@ dist/
 build/
 
 # Optional: ignore uploads or temp folders
-uploads/
+
 temp/
 tmp/
 
