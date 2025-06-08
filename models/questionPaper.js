@@ -1,72 +1,77 @@
-const mongoose = require("mongoose")
+const mongoose = require("mongoose");
 
-// Define the  schema
+
 const questionPaperSchema = new mongoose.Schema({
-    name:{
-        type:String,
+    name: {
+        type: String,
         required: true,
         trim: true,
     },
 
-    code:{
-        type:String,
+    code: {
+        type: String,
         required: true,
         trim: true,
     },
 
-    term:{
-        type:String,
+    term: {
+        type: String,
         required: true,
         trim: true,
     },
 
-    year:{
-        type:String,
+    year: {
+        type: String,
         required: true,
         trim: true,
     },
 
-    fileId:{
+    fileId: {
         type: String,
-        require: true,
-        trim: true
-    },
-
-    fileName:{
-        type: String,
-        require: true,
-        trim: true
-    },
-
-    viewLink:{
-        type: String,
-        require: true,
-        trim: true
-    },
-
-    downloadLink:{
-        type: String,
-        require: true,
-        trim: true
-    },
-
-    contributor:{
-        type: String,
-        require: true,
-    },
-
-    score:{
-        type:String,
         required: true,
         trim: true,
     },
 
-    createdAt:{
+    fileName: {
+        type: String,
+        required: true,
+        trim: true,
+    },
+
+    viewLink: {
+        type: String,
+        required: true,
+        trim: true,
+    },
+
+    downloadLink: {
+        type: String,
+        required: true,
+        trim: true,
+    },
+
+    contributor: {
+        type: String,
+        required: true,
+    },
+
+    score: {
+        type: String,
+        required: true,
+        trim: true,
+    },
+
+    verified: {
+        type: Boolean,
+        required: true,
+        default: false, 
+    },
+
+    createdAt: {
         type: Date,
-        default: Date.now
+        default: Date.now,
     }
+});
 
-})
 
-// Export the  model
-module.exports = mongoose.model("questionPaper", questionPaperSchema)
+module.exports = mongoose.model("questionPaper", questionPaperSchema);

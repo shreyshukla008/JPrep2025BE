@@ -5,6 +5,8 @@ const path = require("path");
 const fs = require("fs");
 const QuestionPaper = require("../models/questionPaper");
 const Subject = require("../models/subject");
+
+
 const serviceAccount = {
   type: "service_account",
   project_id: process.env.PROJECT_ID,
@@ -18,6 +20,8 @@ const serviceAccount = {
   client_x509_cert_url: process.env.CLIENT_CERT_URL,
 };
 
+
+
 const auth = new google.auth.GoogleAuth({ 
   //keyFile:  path.join(__dirname, '../jprep2025.json'), // Path to your service account key
   credentials: serviceAccount,
@@ -27,21 +31,21 @@ const drive = google.drive({ version: "v3", auth });
 
 //testing starts -----
 
-async function checkFolder(folderId) {
-  const authClient = await auth.getClient();
-  const drive = google.drive({ version: "v3", auth: authClient });
+// async function checkFolder(folderId) {
+//   const authClient = await auth.getClient();
+//   const drive = google.drive({ version: "v3", auth: authClient });
 
-  const res = await drive.files.list({
-    q: `'${folderId}' in parents and trashed = false`,
-    fields: "files(id, name)",
-  });
+//   const res = await drive.files.list({
+//     q: `'${folderId}' in parents and trashed = false`,
+//     fields: "files(id, name)",
+//   });
 
-  console.log("folder response : ", res.data);
+//   console.log("folder response : ", res.data);
 
-  console.log("Files found in folder:", res.data.files);
-}
+//   console.log("Files found in folder:", res.data.files);
+// }
 
-checkFolder("1-oyGcR9cg3-F2_uE7ymRBNg-GKhZnGN0");
+// checkFolder("1-oyGcR9cg3-F2_uE7ymRBNg-GKhZnGN0");
 
 
 //testing ends---
@@ -214,20 +218,20 @@ const domain = "mail.jiit.ac.in";
 
 
 // Helper to extract text
-const extractTextFromFile = async (filePath, mimeType) => {
-  if (mimeType === "application/pdf") {
-    const buffer = fs.readFileSync(filePath);
-    const data = await pdfParse(buffer);
-    //console.log("data: " , data);
-    return data.text;
-  }
+// const extractTextFromFile = async (filePath, mimeType) => {
+//   if (mimeType === "application/pdf") {
+//     const buffer = fs.readFileSync(filePath);
+//     const data = await pdfParse(buffer);
+//     //console.log("data: " , data);
+//     return data.text;
+//   }
 
-  // Use Tesseract for images
-  const { data: { text } } = await Tesseract.recognize(filePath, "eng");
+//   // Use Tesseract for images
+//   const { data: { text } } = await Tesseract.recognize(filePath, "eng");
 
-  console.log("after teseract processing: " , {text});
-  return text;
-};
+//   console.log("after teseract processing: " , {text});
+//   return text;
+// };
 
 const { convertPdfToImages, extractTextFromImages, extractMetadata, validateMetadataWithOCR } = require("../utils/ocrUtils");
 
@@ -250,6 +254,25 @@ const createQuestionPaper = [
         return res.status(400).json({ message: "Missing required fields!" });
       }
 
+
+      //temporary  contitions to remove duplicate documents---------------------
+
+      const existingPaper = await QuestionPaper.findOne({
+        name: name.trim(),
+        term: term.trim(),
+        year: year.trim(),
+        code: code.trim(),
+      });
+
+      if (existingPaper) {
+        // Avoid saving duplicate entry
+        return res.status(409).json({
+          message: "A question paper for the same subject, term, and year already exists.",
+          existingPaper,
+        });
+      }
+
+      //----------------------------------------------------------
 
       
       // Perform OCR
@@ -287,10 +310,7 @@ const createQuestionPaper = [
       const metadata = extractedInfo.metadata;
       const extractedText = extractedInfo.text;
       const confidenceScore = extractedInfo.confidenceScore
-// console.log("extracted text: ", extractedText);
-// console.log("metaData : " , metadata);
-// console.log("confidenceScore: ", confidenceScore);
-
+      
 // OCR Validation: Check if text includes name and code
 
       const ocrData = {name: name, term: term, year: year, code: code };
@@ -299,34 +319,24 @@ const createQuestionPaper = [
 
       const validationResult = validateMetadataWithOCR(metadata, ocrData);
 
-      
+      const subject = await Subject.findOne({ name: name, code: code });
 
-// if (!extractedText.includes(name) || !extractedText.includes(code)) {
-//   await deleteLocalFile(filePath);
-//   return res.status(400).json(
-//                         { extractedInfo, 
-//                           message: "OCR failed to validate subject name or code in the file." 
-//                         });
-// }
+      if (!subject) {
+        await deleteLocalFile(filePath);
+        return res.status(404).json(
+                              {extractedInfo,  
+                                validationResult,
+                                message: "Subject not found!" });
+      }
 
-// Now proceed to find the subject
-const subject = await Subject.findOne({ name: name, code: code });
-if (!subject) {
-  await deleteLocalFile(filePath);
-  return res.status(404).json(
-                        {extractedInfo,  
-                          validationResult,
-                          message: "Subject not found!" });
-}
-
-if(!validationResult.isValid){
-   await deleteLocalFile(filePath);
-  return res.status(400).json(
-                        { extractedInfo, 
-                          validationResult,
-                          message: "OCR failed to validate subject name or code in the file." 
-                        });
-}
+      // if(!validationResult.isValid){
+      //   await deleteLocalFile(filePath);
+      //   return res.status(400).json(
+      //                         { extractedInfo, 
+      //                           validationResult,
+      //                           message: "OCR failed to validate subject name or code in the file." 
+      //                         });
+      // }
 
       // Step 4: Upload to Google Drive
       const fileMetadata = {
@@ -358,8 +368,10 @@ if(!validationResult.isValid){
       });
 
       await deleteLocalFile(filePath); // Clean up local file
+      
 
-      // Save to DB
+
+      
       const questionPaper = new QuestionPaper({
         name,
         term,
@@ -371,6 +383,7 @@ if(!validationResult.isValid){
         fileName: file.data.name,
         viewLink: `https://drive.google.com/file/d/${file.data.id}/view`,
         downloadLink: `https://drive.google.com/uc?id=${file.data.id}&export=download`,
+        verified: validationResult.isValid ? true : false,
       });
 
       await questionPaper.save();
@@ -379,11 +392,15 @@ if(!validationResult.isValid){
       await subject.save();
 
       res.status(201).json({
-        message: "Question paper uploaded and saved to database!",
+        message: validationResult.isValid
+        ? "Question paper uploaded and verified successfully!"
+        : "Question paper uploaded but marked as unverified due to OCR validation.",
         questionPaper,
         extractedInfo, 
         validationResult,
       });
+
+
     } catch (error) {
       console.error("Error:", error);
       await deleteLocalFile(filePath);
@@ -400,12 +417,23 @@ const deleteQuestionPaper = async (req, res) => {
   try {
     const { id } = req.params;
     const questionPaper = await QuestionPaper.findById(id);
-    if (!questionPaper) return res.status(404).json({ message: "Question paper not found" });
+    if (!questionPaper) 
+      return res.status(404).json({ message: "Question paper not found" });
 
     const fileId = questionPaper.fileId;
-    await drive.files.delete({fileId});
+
+    try {
+      await drive.files.delete({ fileId });
+    } catch (err) {
+      console.warn("Google Drive file deletion failed (maybe already deleted):", err.message);
+    }
+
     await QuestionPaper.findByIdAndDelete(id);
-    await Subject.updateOne({ questionMaterial: id }, { $pull: { questionMaterial: id } });
+
+    await Subject.updateOne(
+      { questionMaterial: id }, 
+      { $pull: { questionMaterial: id } }
+    );
 
     res.status(200).json({ message: "Question paper deleted successfully!" });
   } catch (error) {
@@ -413,7 +441,88 @@ const deleteQuestionPaper = async (req, res) => {
   }
 };
 
+
+const verifyQuestionPaper = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const questionPaper = await QuestionPaper.findById(id);
+    if (!questionPaper) {
+      return res.status(404).json({ message: "Question paper not found" });
+    }
+
+    if (questionPaper.verified === true) {
+      return res.status(400).json({ message: "Question paper is already verified" });
+    }
+
+    questionPaper.verified = true;
+    await questionPaper.save();
+
+    res.status(200).json({
+      message: "Question paper has been verified successfully!",
+      questionPaper,
+    });
+  } catch (error) {
+    console.error("Verification failed:", error);
+    res.status(500).json({
+      message: "Failed to verify question paper",
+      error: error.message,
+    });
+  }
+};
+
+
+const getUnverifiedQuestionPapers = async (req, res) => {
+  try {
+    const unverifiedPapers = await QuestionPaper.find({ verified: false });
+
+    res.status(200).json({
+      message: "Unverified question papers fetched successfully",
+      count: unverifiedPapers.length,
+      data: unverifiedPapers,
+    });
+  } catch (error) {
+    console.error("Error fetching unverified papers:", error);
+    res.status(500).json({
+      message: "Failed to fetch unverified question papers",
+      error: error.message,
+    });
+  }
+};
+
+
+
+const getQuestionPaperByDetails = async (req, res) => {
+  try {
+    const { name, term, year } = req.body;
+
+    if (!name || !term || !year) {
+      return res.status(400).json({ message: "All fields are required." });
+    }
+
+    const paper = await QuestionPaper.findOne({
+      name: { $regex: new RegExp(name, "i") }, // case-insensitive match
+      term,
+      year,
+    });
+
+    if (!paper) {
+      return res.status(404).json({ message: "No matching paper found." });
+    }
+
+    return res.status(200).json({ data: paper });
+  } catch (error) {
+    console.error("Error in getQuestionPaperByDetails:", error);
+    return res.status(500).json({ message: "Server error." });
+  }
+};
+
+
+
 module.exports = {
   createQuestionPaper,
   deleteQuestionPaper,
+  verifyQuestionPaper,
+  getUnverifiedQuestionPapers,
+  getQuestionPaperByDetails
 };

@@ -15,6 +15,10 @@ exports.getQuestionPapersForSubject = async (req, res) => {
     };
 
     subject.questionMaterial.forEach((paper) => {
+      
+      const status = paper.verified;
+      if(!status) return;
+
       const term = paper.term.toLowerCase();
       if (term === 'term-1') papersByTerm.Term1.push(paper);
       else if (term === 'term-2') papersByTerm.Term2.push(paper);
@@ -69,6 +73,68 @@ exports.getAllSubjects = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ message: "Failed to get subjects", error: error.message });
+  }
+};
+
+exports.findCourseByName = async (req, res) => {
+  try {
+    const { name } = req.body;
+
+    if (!name) {
+      return res.status(400).json({ message: "Course name is required" });
+    }
+
+    const regex = new RegExp(name, "i"); // case-insensitive search
+    const course = await Subject.findOne({ name: regex });
+
+    if (!course) {
+      return res.status(404).json({ message: "Course not found" });
+    }
+
+    return res.status(200).json({ data: course });
+  } catch (err) {
+    console.error("Error in findCourseByName:", err);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+
+
+exports.updateCourseById = async (req, res) => {
+  try {
+    const courseId = req.params.id;
+    const updateData = req.body;
+
+    const updatedCourse = await Subject.findByIdAndUpdate(courseId, updateData, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!updatedCourse) {
+      return res.status(404).json({ message: "Course not found" });
+    }
+
+    return res.status(200).json({ message: "Course updated", data: updatedCourse });
+  } catch (err) {
+    console.error("Error updating course:", err);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+exports.deleteCourseById = async (req, res) => {
+  try {
+    const courseId = req.params.id;
+
+    const deleted = await Subject.findByIdAndDelete(courseId);
+
+    if (!deleted) {
+      return res.status(404).json({ message: "Course not found" });
+    }
+
+    return res.status(200).json({ message: "Course deleted" });
+  } catch (err) {
+    console.error("Error deleting course:", err);
+    return res.status(500).json({ message: "Internal Server Error" });
   }
 };
 

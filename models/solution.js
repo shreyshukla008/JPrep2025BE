@@ -1,65 +1,71 @@
-const mongoose = require("mongoose")
+const mongoose = require("mongoose");
 
-// Define the  schema
+
 const solutionSchema = new mongoose.Schema({
-    name:{
-        type:String,
+    name: {
+        type: String,
         required: true,
         trim: true,
     },
 
-    code:{
-        type:String,
+    code: {
+        type: String,
         required: true,
         trim: true,
     },
 
-    term:{
-        type:String,
+    term: {
+        type: String,
         required: true,
         trim: true,
     },
 
-    year:{
-        type:String,
+    year: {
+        type: String,
         required: true,
         trim: true,
     },
 
-    fileId:{
+    fileId: {
         type: String,
-        require: true,
-        trim: true
+        required: true,
+        trim: true,
     },
 
-    fileName:{
+    fileName: {
         type: String,
-        require: true,
-        trim: true
+        required: true,
+        trim: true,
     },
 
-    viewLink:{
+    viewLink: {
         type: String,
-        require: true,
-        trim: true
+        required: true,
+        trim: true,
     },
 
-    downloadLink:{
+    downloadLink: {
         type: String,
-        require: true,
-        trim: true
+        required: true,
+        trim: true,
     },
 
-    contributors:{
+    contributors: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "user",
     },
 
-    createdAt:{
-        type: Date,
-        default: Date.now
-    }
-})
+    verified: {
+        type: Boolean,
+        required: true,
+        default: false, 
+    },
 
-// Export the  model
-module.exports = mongoose.model("solution", solutionSchema)
+    createdAt: {
+        type: Date,
+        default: Date.now,
+    }
+});
+
+
+module.exports = mongoose.model("solution", solutionSchema);

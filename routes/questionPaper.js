@@ -1,10 +1,21 @@
 // routes/questionPaperRoutes.js
 const express = require("express");
-const multer = require("multer");
-const path = require("path");
-const { createQuestionPaper, deleteQuestionPaper } = require("../controllers/questionPaper");
-
 const router = express.Router();
+const   {createQuestionPaper,
+        deleteQuestionPaper,
+        verifyQuestionPaper, 
+        getUnverifiedQuestionPapers,
+        getQuestionPaperByDetails, 
+        } = require("../controllers/questionPaper");
+const { verifyToken } = require("../middlewares/verifyToken");
+const { hasRole } = require("../middlewares/roleMiddleware");
+
+const {checkUploadPermission} = require("../middlewares/checkPermissions")
+
+
+
+
+// const path = require("path");
 
 // const uploadDir = path.join(__dirname, "../uploads");
 
@@ -33,7 +44,16 @@ const router = express.Router();
 // });
 
 // Routes
-router.post("/upload",  createQuestionPaper);
-router.delete("/delete/:id", deleteQuestionPaper);
+
+
+router.post("/upload", verifyToken, checkUploadPermission,  createQuestionPaper);
+
+router.delete("/delete/:id", verifyToken, hasRole("Admin", "Owner"), deleteQuestionPaper);
+
+router.patch("/verify/:id", verifyToken, hasRole("Admin", "Owner"), verifyQuestionPaper);
+
+router.get("/unverified", verifyToken, hasRole("Admin", "Owner"), getUnverifiedQuestionPapers);
+
+router.post("/find", getQuestionPaperByDetails);
 
 module.exports = router;
